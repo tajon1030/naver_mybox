@@ -1,10 +1,13 @@
 package com.numble.mybox.folder.mapper;
 
+import com.numble.mybox.folder.dto.FolderFileListResponse;
 import com.numble.mybox.folder.dto.FolderResponse;
 import com.numble.mybox.folder.dto.FolderSaveDto;
 import com.numble.mybox.folder.entity.Folder;
 import com.numble.mybox.user.entity.User;
 import org.mapstruct.Mapper;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface FolderMapper {
@@ -14,4 +17,8 @@ public interface FolderMapper {
     }
 
     FolderResponse toFolderResponse(Folder folder);
+
+    default FolderFileListResponse toFolderFileResponse(List<Folder> folderList) {
+        return new FolderFileListResponse(folderList.stream().map(this::toFolderResponse).toList());
+    }
 }
