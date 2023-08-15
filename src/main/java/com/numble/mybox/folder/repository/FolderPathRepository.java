@@ -13,7 +13,7 @@ public interface FolderPathRepository extends JpaRepository<FolderPath, FolderPa
             INSERT INTO folder_path (ancestor, descendant, depth)
             SELECT ancestor, ?1, depth+1
             FROM folder_path
-            WHERE descendant = ?2
+            WHERE ?2 IS NOT NULL AND descendant = ?2
             UNION ALL
             SELECT ?1, ?1, 0
             """)
