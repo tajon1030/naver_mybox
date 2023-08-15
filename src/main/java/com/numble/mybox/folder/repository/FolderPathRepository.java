@@ -1,4 +1,4 @@
-package com.numble.mybox.folder;
+package com.numble.mybox.folder.repository;
 
 import com.numble.mybox.folder.entity.FolderPath;
 import com.numble.mybox.folder.entity.FolderPathId;

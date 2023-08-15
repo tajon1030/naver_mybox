@@ -1,4 +1,4 @@
-package com.numble.mybox.folder;
+package com.numble.mybox.folder.entity;
 
 import com.numble.mybox.user.entity.User;
 import jakarta.persistence.*;

@@ -1,9 +1,12 @@
-package com.numble.mybox.folder;
+package com.numble.mybox.folder.controller;
 
 import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
+import com.numble.mybox.folder.service.FolderService;
 import com.numble.mybox.folder.dto.FolderResponse;
 import com.numble.mybox.folder.dto.FolderSaveDto;
+import com.numble.mybox.folder.entity.Folder;
+import com.numble.mybox.folder.mapper.FolderMapper;
 import com.numble.mybox.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

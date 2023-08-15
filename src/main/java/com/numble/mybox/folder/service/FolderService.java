@@ -1,5 +1,8 @@
-package com.numble.mybox.folder;
+package com.numble.mybox.folder.service;
 
+import com.numble.mybox.folder.entity.Folder;
+import com.numble.mybox.folder.repository.FolderPathRepository;
+import com.numble.mybox.folder.repository.FolderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
