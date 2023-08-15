@@ -4,7 +4,6 @@ import com.numble.mybox.folder.dto.FolderResponse;
 import com.numble.mybox.folder.dto.FolderSaveDto;
 import com.numble.mybox.user.entity.User;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface FolderMapper {
@@ -16,13 +15,11 @@ public interface FolderMapper {
         if (dto.parentFolderId() != null) {
             Folder parentFolder = new Folder();
             parentFolder.setId(dto.parentFolderId());
-            folder.setParent(parentFolder);
         }
 
         folder.setUser(user);
         return folder;
     }
 
-    @Mapping(source = "parent.id", target = "parentFolderId")
     FolderResponse toFolderResponse(Folder folder);
 }

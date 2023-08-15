@@ -9,14 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FolderService {
     private final FolderRepository folderRepository;
+    private final FolderPathRepository folderPathRepository;
 
-    public Folder addFolder(Folder folder) {
+    public Folder addFolder(Folder folder, Long parentFolderId) {
         Folder savedFolder = folderRepository.save(folder);
-
-        if (folder.getParent() != null) {
-            folder.getParent().addChildFolder(folder);
-        }
-
+        folderPathRepository.saveFolderPath(savedFolder.getId(),parentFolderId);
         return savedFolder;
     }
 }

@@ -37,7 +37,7 @@ public class FolderController {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        Folder savedFolder = folderService.addFolder(folderMapper.toFolder(dto, loginUser));
+        Folder savedFolder = folderService.addFolder(folderMapper.toFolder(dto, loginUser), dto.parentFolderId());
         return ResponseEntity.ok(folderMapper.toFolderResponse(savedFolder));
     }
 }
