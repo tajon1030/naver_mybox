@@ -2,6 +2,8 @@ package com.numble.mybox.folder.controller;
 
 import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
+import com.numble.mybox.file.File;
+import com.numble.mybox.file.FileService;
 import com.numble.mybox.folder.dto.FolderFileListResponse;
 import com.numble.mybox.folder.dto.FolderResponse;
 import com.numble.mybox.folder.dto.FolderSaveDto;
@@ -24,6 +26,7 @@ import java.util.List;
 public class FolderController {
 
     private final FolderService folderService;
+    private final FileService fileService;
     private final FolderMapper folderMapper;
 
     /**
@@ -64,8 +67,9 @@ public class FolderController {
         // 자식 폴더 조회
         List<Folder> childFolderList = folderService.getChildFolderList(folderId);
 
-        // TODO 자식 파일 조회
+        // 자식 파일 조회
+        List<File> fileList = fileService.getFileList(folderId, loginUser.getId());
 
-        return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList));
+        return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList, fileList));
     }
 }

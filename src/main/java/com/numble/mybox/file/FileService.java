@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class FileService {
         String originalFilename = multipartFile.getOriginalFilename();
         File file = File.builder()
                 .oriName(originalFilename)
-                .saveName(originalFilename+ UUID.randomUUID())
+                .saveName(originalFilename + UUID.randomUUID())
                 .fileType(multipartFile.getContentType())
                 .size(multipartFile.getSize())
                 .uploadPath("")
@@ -52,7 +53,7 @@ public class FileService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
-        if(!Objects.equals(file.getUserId(), userId)){
+        if (!Objects.equals(file.getUserId(), userId)) {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
@@ -61,5 +62,10 @@ public class FileService {
         // 파일 정보 삭제
         fileRepository.delete(file);
         // TODO ObjectStorage 파일 제거
+    }
+
+    @Transactional(readOnly = true)
+    public List<File> getFileList(Long folderId, Long userId) {
+        return fileRepository.findByFolderIdAndUserId(folderId, userId);
     }
 }
