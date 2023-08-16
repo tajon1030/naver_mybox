@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -19,8 +20,8 @@ public class FileService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
 
-    public void upload(MultipartFile multipartFile, Long id, Long folderId) {
-        User user = userRepository.findById(id)
+    public void upload(MultipartFile multipartFile, Long userId, Long folderId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getUnusedQuota() < multipartFile.getSize()) {
@@ -43,6 +44,22 @@ public class FileService {
                 .build();
         fileRepository.save(file);
 
-        // ObjectStorage 업로드
+        // TODO ObjectStorage 업로드
+    }
+
+    public void deleteFile(Long fileId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+        if(!Objects.equals(file.getUserId(), userId)){
+            throw new CustomException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        // 회원의 총 사용 용량 추가
+        userRepository.saveAndFlush(user.returnQuota(file.getSize()));
+        // 파일 정보 삭제
+        fileRepository.delete(file);
+        // TODO ObjectStorage 파일 제거
     }
 }

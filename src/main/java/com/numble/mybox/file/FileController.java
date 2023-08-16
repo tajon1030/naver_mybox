@@ -40,4 +40,24 @@ public class FileController {
     }
 
 
+    /**
+     * 파일 삭제
+     *
+     * @param request
+     * @param fileId
+     * @return
+     */
+    @DeleteMapping
+    public ResponseEntity<Void> deleteFile(HttpServletRequest request,
+                                           @RequestParam Long fileId) {
+        User loginUser = (User) request.getSession().getAttribute("loginUser");
+        // 로그인 검증
+        if (loginUser == null) {
+            throw new CustomException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        fileService.deleteFile(fileId, loginUser.getId());
+
+        return ResponseEntity.ok().build();
+    }
 }

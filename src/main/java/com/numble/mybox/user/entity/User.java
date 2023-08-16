@@ -32,4 +32,9 @@ public class User {
         this.unusedQuota += bytes;
         return this;
     }
+
+    public User returnQuota(long bytes){
+        this.unusedQuota -= bytes;
+        return this;
+    }
 }
