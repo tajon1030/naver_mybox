@@ -12,9 +12,9 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER-ERR-404", "user not founded"),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "MEMBER-ERR-401", "Password is invalid"),
     INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "MEMBER-ERR-401", "Permission is invalid"),
-
+    DISK_OUT_OF_SPACE(HttpStatus.OK, "MEMBER-ERR-413", "Disk out of space"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-ERR-500", "Internal server error"),
-    ;
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE-ERR-404", "file not founded");
 
     private final HttpStatus status;
     private final String errorCode;
