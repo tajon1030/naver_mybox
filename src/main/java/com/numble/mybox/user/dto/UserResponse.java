@@ -1,6 +1,7 @@
 package com.numble.mybox.user.dto;
 
 public record UserResponse(
-        String Email
+        String email,
+        Long unusedQuota
 ) {
 }
