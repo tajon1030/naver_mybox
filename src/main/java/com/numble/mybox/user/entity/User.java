@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.util.unit.DataSize;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,9 +21,20 @@ public class User {
     private Long id;
     private String email;
     private String password;
+    private Long unusedQuota = DataSize.ofGigabytes(30L).toBytes();
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
+    }
+
+    public User useQuota(long bytes) {
+        this.unusedQuota += bytes;
+        return this;
+    }
+
+    public User returnQuota(long bytes){
+        this.unusedQuota -= bytes;
+        return this;
     }
 }

@@ -2,6 +2,8 @@ package com.numble.mybox.user.service;
 
 import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
+import com.numble.mybox.folder.entity.Folder;
+import com.numble.mybox.folder.service.FolderService;
 import com.numble.mybox.user.repository.UserRepository;
 import com.numble.mybox.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final FolderService folderService;
 
     public User signUp(User user) {
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        // 최상위 폴더 추가
+        folderService.addFolder(new Folder("root", savedUser),null);
+        return savedUser;
     }
 
     @Transactional(readOnly = true)
