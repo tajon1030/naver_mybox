@@ -1,9 +1,10 @@
 package com.numble.mybox.user.controller;
 
+import com.numble.mybox.user.dto.EmailPasswordDto;
+import com.numble.mybox.user.dto.UserResponse;
+import com.numble.mybox.user.entity.User;
 import com.numble.mybox.user.mapper.UserMapper;
 import com.numble.mybox.user.service.UserService;
-import com.numble.mybox.user.dto.EmailPasswordDto;
-import com.numble.mybox.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -59,5 +60,16 @@ public class UserController {
         // 세션 삭제
         request.getSession(false).invalidate();
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 내 정보 조회
+     *
+     * @return
+     */
+    @GetMapping("/my")
+    public ResponseEntity<UserResponse> myInfo(@SessionAttribute("loginUser") User user) {
+        UserResponse myInfo = userMapper.toUserResponse(userService.getMyInfo(user.getEmail()));
+        return ResponseEntity.ok(myInfo);
     }
 }

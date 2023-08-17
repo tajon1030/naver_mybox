@@ -37,4 +37,10 @@ public class UserService {
                 })
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public User getMyInfo(String email){
+        return userRepository.findByEmail(email)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }
