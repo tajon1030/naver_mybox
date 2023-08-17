@@ -57,7 +57,7 @@ public class FileService {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        // 회원의 총 사용 용량 추가
+        // 회원의 총 사용 용량 원복
         userRepository.saveAndFlush(user.returnQuota(file.getSize()));
         // 파일 정보 삭제
         fileRepository.delete(file);
@@ -67,5 +67,19 @@ public class FileService {
     @Transactional(readOnly = true)
     public List<File> getFileList(Long folderId, Long userId) {
         return fileRepository.findByFolderIdAndUserId(folderId, userId);
+    }
+
+    public void deleteFileWithFolderId(Long folderId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<File> fileList = fileRepository.findByFolderIdAndUserId(folderId, userId);
+        // 회원의 총 사용 용량 원복
+        long totalSize = fileList.stream().mapToLong(File::getSize).sum();
+        userRepository.saveAndFlush(user.returnQuota(totalSize));
+        // 파일 정보 삭제
+        fileRepository.deleteAll(fileList);
+
+        // TODO ObjectStorage 파일 제거
     }
 }

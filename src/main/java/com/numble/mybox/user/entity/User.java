@@ -29,12 +29,12 @@ public class User {
     }
 
     public User useQuota(long bytes) {
-        this.unusedQuota += bytes;
+        this.unusedQuota -= bytes;
         return this;
     }
 
     public User returnQuota(long bytes){
-        this.unusedQuota -= bytes;
+        this.unusedQuota += bytes;
         return this;
     }
 }

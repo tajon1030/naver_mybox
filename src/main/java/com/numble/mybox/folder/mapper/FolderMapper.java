@@ -8,6 +8,7 @@ import com.numble.mybox.folder.dto.FolderSaveDto;
 import com.numble.mybox.folder.entity.Folder;
 import com.numble.mybox.user.entity.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -28,4 +29,5 @@ public interface FolderMapper {
                 folderList.stream().map(this::toFolderResponse).toList(),
                 fileList.stream().map(fileMapper::toFileResponse).toList());
     }
+
 }

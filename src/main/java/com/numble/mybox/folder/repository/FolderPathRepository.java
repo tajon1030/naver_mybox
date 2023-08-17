@@ -28,7 +28,8 @@ public interface FolderPathRepository extends JpaRepository<FolderPath, FolderPa
             JOIN Folder f
             ON fp.folderPathId.descendant = f.id
             WHERE fp.folderPathId.ancestor = :ancestor
-            AND fp.depth = :depth
+            AND fp.depth = coalesce(:depth, fp.depth)
+            ORDER BY fp.depth desc, f.id
             """)
     List<Folder> findByAncestorAndDepth(Long ancestor, Long depth);
 }

@@ -13,6 +13,7 @@ import com.numble.mybox.folder.service.FolderService;
 import com.numble.mybox.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -71,5 +72,19 @@ public class FolderController {
         List<File> fileList = fileService.getFileList(folderId, loginUser.getId());
 
         return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList, fileList));
+    }
+
+    @DeleteMapping("/{folderId}")
+    public ResponseEntity<Void> deleteFolder(HttpServletRequest request,
+                                             @PathVariable Long folderId){
+        User loginUser = (User) request.getSession().getAttribute("loginUser");
+        // 로그인 검증
+        if (loginUser == null) {
+            throw new CustomException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        folderService.deleteFolder(folderId, loginUser.getId());
+
+        return ResponseEntity.ok().build();
     }
 }
