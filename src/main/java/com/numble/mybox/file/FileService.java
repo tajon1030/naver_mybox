@@ -6,18 +6,17 @@ import com.numble.mybox.folder.entity.Folder;
 import com.numble.mybox.folder.repository.FolderPathRepository;
 import com.numble.mybox.user.entity.User;
 import com.numble.mybox.user.repository.UserRepository;
-import com.numble.mybox.util.Utils;
+import com.numble.mybox.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static com.numble.mybox.util.ObjectStorage.putObject;
 
 @Service
 @Transactional
@@ -27,6 +26,7 @@ public class FileService {
     private final FileRepository fileRepository;
     private final FolderPathRepository folderPathRepository;
     private final UserRepository userRepository;
+    private final S3Client s3Client;
 
     public void upload(MultipartFile multipartFile, Long userId, Long folderId) {
         User user = userRepository.findById(userId)
@@ -41,11 +41,9 @@ public class FileService {
 
         // 파일 정보 저장
         String originalFilename = multipartFile.getOriginalFilename();
-
         String path = folderPathRepository.findByDescendantAndUserId(folderId, userId)
                 .stream().map(Folder::getName)
                 .collect(Collectors.joining("/", "", "/"));
-
         File file = File.builder()
                 .oriName(originalFilename)
                 .saveName(originalFilename + UUID.randomUUID())
@@ -57,8 +55,11 @@ public class FileService {
                 .build();
         fileRepository.save(file);
 
+        // ObjectStorage 파일 저장
         try {
-            putObject(path + originalFilename, Utils.multipartToFile(multipartFile));
+            s3Client.upload(multipartFile.getInputStream(), multipartFile.getSize(),
+                    path + originalFilename, multipartFile.getContentType(),
+                    Map.of("oriFileNm", originalFilename));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +78,8 @@ public class FileService {
         userRepository.saveAndFlush(user.returnQuota(file.getSize()));
         // 파일 정보 삭제
         fileRepository.delete(file);
-        // TODO ObjectStorage 파일 제거
+        // ObjectStorage 파일 제거
+        s3Client.delete(file.getUploadPath() + file.getOriName());
     }
 
     @Transactional(readOnly = true)
@@ -90,12 +92,17 @@ public class FileService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<File> fileList = fileRepository.findByFolderIdAndUserId(folderId, userId);
-        // 회원의 총 사용 용량 원복
-        long totalSize = fileList.stream().mapToLong(File::getSize).sum();
-        userRepository.saveAndFlush(user.returnQuota(totalSize));
-        // 파일 정보 삭제
-        fileRepository.deleteAll(fileList);
-
-        // TODO ObjectStorage 파일 제거
+        if (!fileList.isEmpty()) {
+            // ObjectStorage 파일 제거
+            s3Client.delete(fileList.stream()
+                    .map(file -> file.getUploadPath() + file.getOriName())
+                    .peek(System.out::println)
+                    .toArray(String[]::new));
+            // 회원의 총 사용 용량 원복
+            long totalSize = fileList.stream().mapToLong(File::getSize).sum();
+            userRepository.saveAndFlush(user.returnQuota(totalSize));
+            // 파일 정보 삭제
+            fileRepository.deleteAll(fileList);
+        }
     }
 }

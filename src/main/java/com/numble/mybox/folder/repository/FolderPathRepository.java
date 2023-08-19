@@ -44,4 +44,7 @@ public interface FolderPathRepository extends JpaRepository<FolderPath, FolderPa
             ORDER BY fp.depth desc, f.id
             """)
     List<Folder> findByDescendantAndUserId(Long descendant, Long userId);
+
+    @Modifying
+    void deleteByFolderPathIdDescendant(Long descendant);
 }

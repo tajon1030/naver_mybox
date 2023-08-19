@@ -20,7 +20,8 @@ spring:
         format_sql: true
 
 naver:
-  endpoint: https://kr.object.ncloudstorage.com
-  access-key: ${NAVER_ACCESS_KEY}
-  secret-key: ${NAVER_SECRET_KEY}
-  bucket-name: ${NAVER_BUCKET_NAME}
+  url: https://kr.object.ncloudstorage.com
+  accessKey: ${NAVER_ACCESS_KEY}
+  secretKey: ${NAVER_SECRET_KEY}
+  bucketName: ${NAVER_BUCKET_NAME}
+  region: kr-standard
