@@ -13,7 +13,6 @@ import com.numble.mybox.folder.service.FolderService;
 import com.numble.mybox.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +43,7 @@ public class FolderController {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        Folder savedFolder = folderService.addFolder(folderMapper.toFolder(dto, loginUser), dto.parentFolderId());
+        Folder savedFolder = folderService.addFolder(folderMapper.toFolder(dto, loginUser), dto.parentFolderId(), loginUser.getId());
         return ResponseEntity.ok(folderMapper.toFolderResponse(savedFolder));
     }
 

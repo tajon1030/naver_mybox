@@ -2,8 +2,11 @@ package com.numble.mybox.file;
 
 import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
+import com.numble.mybox.folder.entity.Folder;
+import com.numble.mybox.folder.repository.FolderPathRepository;
 import com.numble.mybox.user.entity.User;
 import com.numble.mybox.user.repository.UserRepository;
+import com.numble.mybox.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.numble.mybox.util.ObjectStorage.putObject;
 
 @Service
 @Transactional
@@ -19,6 +25,7 @@ import java.util.UUID;
 public class FileService {
 
     private final FileRepository fileRepository;
+    private final FolderPathRepository folderPathRepository;
     private final UserRepository userRepository;
 
     public void upload(MultipartFile multipartFile, Long userId, Long folderId) {
@@ -34,18 +41,27 @@ public class FileService {
 
         // 파일 정보 저장
         String originalFilename = multipartFile.getOriginalFilename();
+
+        String path = folderPathRepository.findByDescendantAndUserId(folderId, userId)
+                .stream().map(Folder::getName)
+                .collect(Collectors.joining("/", "", "/"));
+
         File file = File.builder()
                 .oriName(originalFilename)
                 .saveName(originalFilename + UUID.randomUUID())
                 .fileType(multipartFile.getContentType())
                 .size(multipartFile.getSize())
-                .uploadPath("")
+                .uploadPath(path)
                 .userId(user.getId())
                 .folderId(folderId)
                 .build();
         fileRepository.save(file);
 
-        // TODO ObjectStorage 업로드
+        try {
+            putObject(path + originalFilename, Utils.multipartToFile(multipartFile));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void deleteFile(Long fileId, Long userId) {

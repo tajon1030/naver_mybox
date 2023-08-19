@@ -32,4 +32,16 @@ public interface FolderPathRepository extends JpaRepository<FolderPath, FolderPa
             ORDER BY fp.depth desc, f.id
             """)
     List<Folder> findByAncestorAndDepth(Long ancestor, Long depth);
+
+
+    @Query(value = """
+            SELECT f
+            FROM FolderPath fp
+            JOIN Folder f
+            ON fp.folderPathId.ancestor = f.id
+            WHERE fp.folderPathId.descendant = :descendant
+            AND f.user.id = :userId
+            ORDER BY fp.depth desc, f.id
+            """)
+    List<Folder> findByDescendantAndUserId(Long descendant, Long userId);
 }

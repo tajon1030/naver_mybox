@@ -18,7 +18,7 @@ public class FolderService {
     private final FolderPathRepository folderPathRepository;
     private final FileService fileService;
 
-    public Folder addFolder(Folder folder, Long parentFolderId) {
+    public Folder addFolder(Folder folder, Long parentFolderId, Long userId) {
         // TODO 부모폴더소유자가 loginUser 와 일치하는지 확인 필요
 
         Folder savedFolder = folderRepository.save(folder);

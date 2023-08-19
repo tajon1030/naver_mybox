@@ -20,7 +20,7 @@ public class UserService {
     public User signUp(User user) {
         User savedUser = userRepository.save(user);
         // 최상위 폴더 추가
-        folderService.addFolder(new Folder("root", savedUser),null);
+        folderService.addFolder(new Folder(String.valueOf(savedUser.getId()), savedUser),null, user.getId());
         return savedUser;
     }
 

@@ -30,6 +30,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	// https://mvnrepository.com/artifact/org.mapstruct/mapstruct
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.11.238'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
