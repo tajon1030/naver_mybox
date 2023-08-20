@@ -27,6 +27,6 @@ public class ServiceConfigure {
 
     @Bean
     public S3Client s3Client(AmazonS3 amazonS3, AwsConfigure awsConfigure) {
-        return new S3Client(amazonS3, awsConfigure.getUrl(), awsConfigure.getBucketName());
+        return new S3Client(amazonS3, awsConfigure.getBucketName());
     }
 }

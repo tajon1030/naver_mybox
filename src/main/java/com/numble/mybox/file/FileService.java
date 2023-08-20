@@ -105,4 +105,19 @@ public class FileService {
             fileRepository.deleteAll(fileList);
         }
     }
+
+    @Transactional(readOnly = true)
+    public File downloadFile(Long fileId, Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+        if (!Objects.equals(file.getUserId(), userId)) {
+            throw new CustomException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        s3Client.download(file.getUploadPath() + file.getOriName(), file.getOriName());
+        return file;
+    }
 }

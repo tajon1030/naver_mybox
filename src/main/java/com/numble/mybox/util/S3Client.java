@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 
 @Slf4j
@@ -14,13 +14,36 @@ public class S3Client {
 
     private final AmazonS3 amazonS3;
 
-    private final String url;
-
     private final String bucketName;
 
     public S3Object get(String key) {
         GetObjectRequest request = new GetObjectRequest(bucketName, key);
         return amazonS3.getObject(request);
+    }
+
+    /**
+     * 파일 다운로드
+     *
+     * @param key              s3 파일명(폴더 path 포함)
+     * @param downloadFilePath 저장경로
+     */
+    public void download(String key, String downloadFilePath) {
+        S3Object s3Object = get(key);
+        S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+
+        try {
+            FileOutputStream fos = new FileOutputStream(downloadFilePath);
+            byte[] read_buf = new byte[1024];
+            int read_len = 0;
+            while ((read_len = s3ObjectInputStream.read(read_buf)) > 0) {
+                fos.write(read_buf, 0, read_len);
+            }
+
+            s3ObjectInputStream.close();
+            fos.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
