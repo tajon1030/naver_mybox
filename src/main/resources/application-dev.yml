@@ -18,3 +18,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+naver:
+  url: https://kr.object.ncloudstorage.com
+  accessKey: ${NAVER_ACCESS_KEY}
+  secretKey: ${NAVER_SECRET_KEY}
+  bucketName: ${NAVER_BUCKET_NAME}
+  region: kr-standard

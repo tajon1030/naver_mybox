@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class File {
+public class MyFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,6 @@ public class File {
     private Long userId;
     private String oriName;
     private String saveName;
-    private String uploadPath;
     private Long size;
     private String fileType;
 

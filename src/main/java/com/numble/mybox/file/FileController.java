@@ -5,10 +5,15 @@ import com.numble.mybox.exception.ErrorCode;
 import com.numble.mybox.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping("/files")
@@ -59,5 +64,35 @@ public class FileController {
         fileService.deleteFile(fileId, loginUser.getId());
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 파일 다운로드
+     *
+     * @param request
+     * @param fileId
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<Resource> downloadFile(HttpServletRequest request,
+                                                 @RequestParam Long fileId) {
+        User loginUser = (User) request.getSession().getAttribute("loginUser");
+        // 로그인 검증
+        if (loginUser == null) {
+            throw new CustomException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        MyFile myFile = fileService.downloadFile(fileId, loginUser.getId());
+        Resource resource = null;
+        try {
+            resource = new UrlResource("file:" + myFile.getOriName());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream;charset=UTF-8")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + myFile.getOriName())
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(myFile.getSize()))
+                .body(resource);
     }
 }

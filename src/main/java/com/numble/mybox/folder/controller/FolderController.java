@@ -2,7 +2,7 @@ package com.numble.mybox.folder.controller;
 
 import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
-import com.numble.mybox.file.File;
+import com.numble.mybox.file.MyFile;
 import com.numble.mybox.file.FileService;
 import com.numble.mybox.folder.dto.FolderFileListResponse;
 import com.numble.mybox.folder.dto.FolderResponse;
@@ -13,7 +13,6 @@ import com.numble.mybox.folder.service.FolderService;
 import com.numble.mybox.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +43,7 @@ public class FolderController {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        Folder savedFolder = folderService.addFolder(folderMapper.toFolder(dto, loginUser), dto.parentFolderId());
+        Folder savedFolder = folderService.addFolder(folderMapper.toFolder(dto, loginUser), dto.parentFolderId(), loginUser.getId());
         return ResponseEntity.ok(folderMapper.toFolderResponse(savedFolder));
     }
 
@@ -63,15 +62,13 @@ public class FolderController {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        // TODO 조회하려는 폴더의 소유자가 loginUser와 일치하는지 확인 필요
-
         // 자식 폴더 조회
-        List<Folder> childFolderList = folderService.getChildFolderList(folderId);
+        List<Folder> childFolderList = folderService.getChildFolderList(folderId, loginUser.getId());
 
         // 자식 파일 조회
-        List<File> fileList = fileService.getFileList(folderId, loginUser.getId());
+        List<MyFile> myFileList = fileService.getFileList(folderId, loginUser.getId());
 
-        return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList, fileList));
+        return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList, myFileList));
     }
 
     @DeleteMapping("/{folderId}")

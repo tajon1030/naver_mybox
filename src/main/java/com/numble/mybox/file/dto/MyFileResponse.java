@@ -1,6 +1,6 @@
 package com.numble.mybox.file.dto;
 
-public record FileResponse(
+public record MyFileResponse(
         Long id,
         Long folderId,
         Long userId,

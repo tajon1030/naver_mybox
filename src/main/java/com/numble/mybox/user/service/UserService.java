@@ -4,8 +4,8 @@ import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
 import com.numble.mybox.folder.entity.Folder;
 import com.numble.mybox.folder.service.FolderService;
-import com.numble.mybox.user.repository.UserRepository;
 import com.numble.mybox.user.entity.User;
+import com.numble.mybox.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +18,9 @@ public class UserService {
     private final FolderService folderService;
 
     public User signUp(User user) {
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.saveAndFlush(user);
         // 최상위 폴더 추가
-        folderService.addFolder(new Folder("root", savedUser),null);
+        folderService.addFolder(new Folder(String.valueOf(savedUser.getId()), savedUser), null, user.getId());
         return savedUser;
     }
 
@@ -39,8 +39,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getMyInfo(String email){
-        return userRepository.findByEmail(email)
-                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public User getMyInfo(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
