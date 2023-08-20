@@ -74,8 +74,8 @@ public class FileController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<?> downloadFile(HttpServletRequest request,
-                                          @RequestParam Long fileId) {
+    public ResponseEntity<Resource> downloadFile(HttpServletRequest request,
+                                                 @RequestParam Long fileId) {
         User loginUser = (User) request.getSession().getAttribute("loginUser");
         // 로그인 검증
         if (loginUser == null) {

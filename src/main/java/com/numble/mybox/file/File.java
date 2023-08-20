@@ -20,7 +20,6 @@ public class File {
     private Long userId;
     private String oriName;
     private String saveName;
-    private String uploadPath;
     private Long size;
     private String fileType;
 

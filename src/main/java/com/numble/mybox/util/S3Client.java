@@ -5,7 +5,9 @@ import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 @Slf4j
@@ -24,7 +26,7 @@ public class S3Client {
     /**
      * 파일 다운로드
      *
-     * @param key              s3 파일명(폴더 path 포함)
+     * @param key              s3 저장명
      * @param downloadFilePath 저장경로
      */
     public void download(String key, String downloadFilePath) {
@@ -51,7 +53,7 @@ public class S3Client {
      *
      * @param in          InputStream
      * @param length      byteSize
-     * @param key         저장이름(폴더 path 포함)
+     * @param key         s3 저장명
      * @param contentType contentType
      * @param metadata    Map.of("oriFileNm","",...)
      * @return
@@ -66,14 +68,14 @@ public class S3Client {
         }
         PutObjectRequest request = new PutObjectRequest(bucketName, key, in, objectMetadata);
         amazonS3.putObject(request.withCannedAcl(CannedAccessControlList.PublicRead));
-        log.info("Object %s has been created.", metadata.get("oriFileNm"));
+        log.info("Object {} has been created.", metadata.get("oriFileNm"));
         return key;
     }
 
     /**
      * 파일 삭제
      *
-     * @param url 삭제할 파일 이름(폴더 path 포함)
+     * @param url 삭제할 파일 s3 저장명
      */
     public void delete(String... url) {
         amazonS3.deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(url));

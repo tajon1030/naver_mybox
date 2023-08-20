@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,15 +40,15 @@ public class FileService {
 
         // 파일 정보 저장
         String originalFilename = multipartFile.getOriginalFilename();
-        String path = folderPathRepository.findByDescendantAndUserId(folderId, userId)
+        String savedFilename = folderPathRepository.findByDescendantAndUserId(folderId, userId)
                 .stream().map(Folder::getName)
-                .collect(Collectors.joining("/", "", "/"));
+                .collect(Collectors.joining("/", "", "/"))
+                + originalFilename;
         File file = File.builder()
                 .oriName(originalFilename)
-                .saveName(originalFilename + UUID.randomUUID())
                 .fileType(multipartFile.getContentType())
                 .size(multipartFile.getSize())
-                .uploadPath(path)
+                .saveName(savedFilename)
                 .userId(user.getId())
                 .folderId(folderId)
                 .build();
@@ -58,7 +57,7 @@ public class FileService {
         // ObjectStorage 파일 저장
         try {
             s3Client.upload(multipartFile.getInputStream(), multipartFile.getSize(),
-                    path + originalFilename, multipartFile.getContentType(),
+                    savedFilename, multipartFile.getContentType(),
                     Map.of("oriFileNm", originalFilename));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -79,7 +78,7 @@ public class FileService {
         // 파일 정보 삭제
         fileRepository.delete(file);
         // ObjectStorage 파일 제거
-        s3Client.delete(file.getUploadPath() + file.getOriName());
+        s3Client.delete(file.getSaveName());
     }
 
     @Transactional(readOnly = true)
@@ -95,7 +94,7 @@ public class FileService {
         if (!fileList.isEmpty()) {
             // ObjectStorage 파일 제거
             s3Client.delete(fileList.stream()
-                    .map(file -> file.getUploadPath() + file.getOriName())
+                    .map(file -> file.getSaveName())
                     .peek(System.out::println)
                     .toArray(String[]::new));
             // 회원의 총 사용 용량 원복
@@ -117,7 +116,7 @@ public class FileService {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        s3Client.download(file.getUploadPath() + file.getOriName(), file.getOriName());
+        s3Client.download(file.getSaveName(), file.getOriName());
         return file;
     }
 }
