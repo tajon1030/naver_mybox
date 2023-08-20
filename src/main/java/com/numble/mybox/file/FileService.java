@@ -67,11 +67,8 @@ public class FileService {
     public void deleteFile(Long fileId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        MyFile myFile = fileRepository.findById(fileId)
+        MyFile myFile = fileRepository.findByUserIdAndId(userId, fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
-        if (!Objects.equals(myFile.getUserId(), userId)) {
-            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-        }
 
         // 회원의 총 사용 용량 원복
         userRepository.saveAndFlush(user.returnQuota(myFile.getSize()));

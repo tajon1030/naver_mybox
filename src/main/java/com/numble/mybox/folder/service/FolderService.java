@@ -1,17 +1,17 @@
 package com.numble.mybox.folder.service;
 
+import com.numble.mybox.exception.CustomException;
+import com.numble.mybox.exception.ErrorCode;
 import com.numble.mybox.file.FileService;
 import com.numble.mybox.folder.entity.Folder;
 import com.numble.mybox.folder.repository.FolderPathRepository;
 import com.numble.mybox.folder.repository.FolderRepository;
-import com.numble.mybox.util.S3Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -21,10 +21,16 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final FolderPathRepository folderPathRepository;
     private final FileService fileService;
-    private final S3Client s3Client;
 
     public Folder addFolder(Folder folder, Long parentFolderId, Long userId) {
-        // TODO 부모폴더소유자가 loginUser 와 일치하는지 확인 필요
+        // 부모폴더소유자가 loginUser 와 일치하는지 확인
+        if (parentFolderId != null) {
+            Folder parentFolder = folderRepository.findById(parentFolderId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.FOLDER_NOT_FOUND));
+            if (!parentFolder.getUser().getId().equals(userId)) {
+                throw new CustomException(ErrorCode.INVALID_PERMISSION);
+            }
+        }
 
         Folder savedFolder = folderRepository.save(folder);
         folderPathRepository.saveFolderPath(savedFolder.getId(), parentFolderId);
@@ -38,7 +44,11 @@ public class FolderService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<Folder> getChildFolderList(Long folderId) {
+    public List<Folder> getChildFolderList(Long folderId, Long userId) {
+        // 폴더소유자가 loginUser 와 일치하는지 확인
+        folderRepository.findByIdAndUserId(folderId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOLDER_NOT_FOUND));
+
         return folderPathRepository.findByAncestorAndDepth(folderId, 1L);
     }
 
@@ -49,7 +59,11 @@ public class FolderService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<Folder> getSubFolderList(Long folderId) {
+    public List<Folder> getSubFolderList(Long folderId, Long userId) {
+        // 폴더소유자가 loginUser 와 일치하는지 확인
+        folderRepository.findByIdAndUserId(folderId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOLDER_NOT_FOUND));
+
         return folderPathRepository.findByAncestorAndDepth(folderId, null);
     }
 
@@ -60,7 +74,7 @@ public class FolderService {
      * @param userId
      */
     public void deleteFolder(Long folderId, Long userId) {
-        List<Long> subFolderIdList = getSubFolderList(folderId).stream()
+        List<Long> subFolderIdList = getSubFolderList(folderId, userId).stream()
                 .map(Folder::getId)
                 .toList();
         // 파일 정보 삭제

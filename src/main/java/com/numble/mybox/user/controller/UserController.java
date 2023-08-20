@@ -69,7 +69,7 @@ public class UserController {
      */
     @GetMapping("/my")
     public ResponseEntity<UserResponse> myInfo(@SessionAttribute("loginUser") User user) {
-        UserResponse myInfo = userMapper.toUserResponse(userService.getMyInfo(user.getEmail()));
+        UserResponse myInfo = userMapper.toUserResponse(userService.getMyInfo(user.getId()));
         return ResponseEntity.ok(myInfo);
     }
 }

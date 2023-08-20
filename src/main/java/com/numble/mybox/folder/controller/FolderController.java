@@ -62,10 +62,8 @@ public class FolderController {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        // TODO 조회하려는 폴더의 소유자가 loginUser와 일치하는지 확인 필요
-
         // 자식 폴더 조회
-        List<Folder> childFolderList = folderService.getChildFolderList(folderId);
+        List<Folder> childFolderList = folderService.getChildFolderList(folderId, loginUser.getId());
 
         // 자식 파일 조회
         List<MyFile> myFileList = fileService.getFileList(folderId, loginUser.getId());
