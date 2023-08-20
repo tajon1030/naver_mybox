@@ -44,7 +44,7 @@ public class FileService {
                 .stream().map(Folder::getName)
                 .collect(Collectors.joining("/", "", "/"))
                 + originalFilename;
-        File file = File.builder()
+        MyFile myFile = MyFile.builder()
                 .oriName(originalFilename)
                 .fileType(multipartFile.getContentType())
                 .size(multipartFile.getSize())
@@ -52,7 +52,7 @@ public class FileService {
                 .userId(user.getId())
                 .folderId(folderId)
                 .build();
-        fileRepository.save(file);
+        fileRepository.save(myFile);
 
         // ObjectStorage 파일 저장
         try {
@@ -67,22 +67,22 @@ public class FileService {
     public void deleteFile(Long fileId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        File file = fileRepository.findById(fileId)
+        MyFile myFile = fileRepository.findById(fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
-        if (!Objects.equals(file.getUserId(), userId)) {
+        if (!Objects.equals(myFile.getUserId(), userId)) {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
         // 회원의 총 사용 용량 원복
-        userRepository.saveAndFlush(user.returnQuota(file.getSize()));
+        userRepository.saveAndFlush(user.returnQuota(myFile.getSize()));
         // 파일 정보 삭제
-        fileRepository.delete(file);
+        fileRepository.delete(myFile);
         // ObjectStorage 파일 제거
-        s3Client.delete(file.getSaveName());
+        s3Client.delete(myFile.getSaveName());
     }
 
     @Transactional(readOnly = true)
-    public List<File> getFileList(Long folderId, Long userId) {
+    public List<MyFile> getFileList(Long folderId, Long userId) {
         return fileRepository.findByFolderIdAndUserId(folderId, userId);
     }
 
@@ -90,33 +90,33 @@ public class FileService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<File> fileList = fileRepository.findByFolderIdAndUserId(folderId, userId);
-        if (!fileList.isEmpty()) {
+        List<MyFile> myFileList = fileRepository.findByFolderIdAndUserId(folderId, userId);
+        if (!myFileList.isEmpty()) {
             // ObjectStorage 파일 제거
-            s3Client.delete(fileList.stream()
+            s3Client.delete(myFileList.stream()
                     .map(file -> file.getSaveName())
                     .peek(System.out::println)
                     .toArray(String[]::new));
             // 회원의 총 사용 용량 원복
-            long totalSize = fileList.stream().mapToLong(File::getSize).sum();
+            long totalSize = myFileList.stream().mapToLong(MyFile::getSize).sum();
             userRepository.saveAndFlush(user.returnQuota(totalSize));
             // 파일 정보 삭제
-            fileRepository.deleteAll(fileList);
+            fileRepository.deleteAll(myFileList);
         }
     }
 
     @Transactional(readOnly = true)
-    public File downloadFile(Long fileId, Long userId) {
+    public MyFile downloadFile(Long fileId, Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
-        File file = fileRepository.findById(fileId)
+        MyFile myFile = fileRepository.findById(fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
-        if (!Objects.equals(file.getUserId(), userId)) {
+        if (!Objects.equals(myFile.getUserId(), userId)) {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        s3Client.download(file.getSaveName(), file.getOriName());
-        return file;
+        s3Client.download(myFile.getSaveName(), myFile.getOriName());
+        return myFile;
     }
 }

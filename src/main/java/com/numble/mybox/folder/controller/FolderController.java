@@ -2,7 +2,7 @@ package com.numble.mybox.folder.controller;
 
 import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
-import com.numble.mybox.file.File;
+import com.numble.mybox.file.MyFile;
 import com.numble.mybox.file.FileService;
 import com.numble.mybox.folder.dto.FolderFileListResponse;
 import com.numble.mybox.folder.dto.FolderResponse;
@@ -68,9 +68,9 @@ public class FolderController {
         List<Folder> childFolderList = folderService.getChildFolderList(folderId);
 
         // 자식 파일 조회
-        List<File> fileList = fileService.getFileList(folderId, loginUser.getId());
+        List<MyFile> myFileList = fileService.getFileList(folderId, loginUser.getId());
 
-        return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList, fileList));
+        return ResponseEntity.ok(folderMapper.toFolderFileResponse(childFolderList, myFileList));
     }
 
     @DeleteMapping("/{folderId}")

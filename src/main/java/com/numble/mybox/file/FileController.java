@@ -82,17 +82,17 @@ public class FileController {
             throw new CustomException(ErrorCode.INVALID_PERMISSION);
         }
 
-        File file = fileService.downloadFile(fileId, loginUser.getId());
+        MyFile myFile = fileService.downloadFile(fileId, loginUser.getId());
         Resource resource = null;
         try {
-            resource = new UrlResource("file:" + file.getOriName());
+            resource = new UrlResource("file:" + myFile.getOriName());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream;charset=UTF-8")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriName())
-                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.getSize()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + myFile.getOriName())
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(myFile.getSize()))
                 .body(resource);
     }
 }

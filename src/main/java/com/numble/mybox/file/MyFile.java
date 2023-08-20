@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class File {
+public class MyFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
