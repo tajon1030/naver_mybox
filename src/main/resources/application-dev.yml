@@ -1,0 +1,27 @@
+test: dev
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+    initialization-mode: always
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+naver:
+  url: https://kr.object.ncloudstorage.com
+  accessKey: ${NAVER_ACCESS_KEY}
+  secretKey: ${NAVER_SECRET_KEY}
+  bucketName: ${NAVER_BUCKET_NAME}
+  region: kr-standard
