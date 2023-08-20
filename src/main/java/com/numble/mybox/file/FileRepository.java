@@ -10,4 +10,6 @@ public interface FileRepository extends JpaRepository<MyFile, Long> {
     List<MyFile> findByFolderIdAndUserId(Long folderId, Long userId);
 
     Optional<MyFile> findByUserIdAndId(Long userId, Long id);
+
+    Optional<MyFile> findFirstByFolderIdAndOriName(Long folderId, String oriName);
 }

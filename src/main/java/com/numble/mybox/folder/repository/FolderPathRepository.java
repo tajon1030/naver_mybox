@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FolderPathRepository extends JpaRepository<FolderPath, FolderPathId> {
 
@@ -47,4 +48,16 @@ public interface FolderPathRepository extends JpaRepository<FolderPath, FolderPa
 
     @Modifying
     void deleteByFolderPathIdDescendant(Long descendant);
+
+    @Query(value = """
+            SELECT f.id, f.name, f.user_id as userId
+            FROM folder_path fp
+            JOIN folder f
+            ON fp.descendant = f.id
+            WHERE fp.ancestor = :parentFolderId
+            AND fp.depth = 1
+            AND f.name = :name
+            LIMIT 1
+            """, nativeQuery = true)
+    Optional<Object> findChildFolderWithSameName(String name, Long parentFolderId);
 }

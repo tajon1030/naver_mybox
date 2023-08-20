@@ -4,6 +4,7 @@ import com.numble.mybox.exception.CustomException;
 import com.numble.mybox.exception.ErrorCode;
 import com.numble.mybox.folder.entity.Folder;
 import com.numble.mybox.folder.repository.FolderPathRepository;
+import com.numble.mybox.folder.repository.FolderRepository;
 import com.numble.mybox.user.entity.User;
 import com.numble.mybox.user.repository.UserRepository;
 import com.numble.mybox.util.S3Client;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class FileService {
 
     private final FileRepository fileRepository;
+    private final FolderRepository folderRepository;
     private final FolderPathRepository folderPathRepository;
     private final UserRepository userRepository;
     private final S3Client s3Client;
@@ -30,7 +32,14 @@ public class FileService {
     public void upload(MultipartFile multipartFile, Long userId, Long folderId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        // 해당 폴더가 사용자의 폴더가 맞는지 확인
+        folderRepository.findByIdAndUserId(folderId, userId)
+                .orElseThrow(()->new CustomException(ErrorCode.INVALID_PERMISSION));
 
+        // 같은 경로에 있는 파일과 이름이 중복되는지 확인
+        validateDuplicationName(multipartFile.getOriginalFilename(), folderId);
+
+        // 사용자 남은 용량 확인
         if (user.getUnusedQuota() < multipartFile.getSize()) {
             throw new CustomException(ErrorCode.DISK_OUT_OF_SPACE);
         }
@@ -62,6 +71,11 @@ public class FileService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void validateDuplicationName(String name, Long folderId) {
+        fileRepository.findFirstByFolderIdAndOriName(folderId, name)
+                .ifPresent(myFile -> {throw new CustomException(ErrorCode.DUPLICATED_NAME);});
     }
 
     public void deleteFile(Long fileId, Long userId) {

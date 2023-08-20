@@ -32,9 +32,19 @@ public class FolderService {
             }
         }
 
+        // 같은 경로에 있는 폴더와 이름이 중복되는지 확인
+        validateDuplicationName(folder.getName(), parentFolderId);
+
         Folder savedFolder = folderRepository.save(folder);
         folderPathRepository.saveFolderPath(savedFolder.getId(), parentFolderId);
         return savedFolder;
+    }
+
+    private void validateDuplicationName(String name, Long parentFolderId) {
+        folderPathRepository.findChildFolderWithSameName(name, parentFolderId)
+                .ifPresent(folder -> {
+                    throw new CustomException(ErrorCode.DUPLICATED_NAME);
+                });
     }
 
     /**

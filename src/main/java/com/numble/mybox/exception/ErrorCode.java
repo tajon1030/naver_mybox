@@ -15,7 +15,8 @@ public enum ErrorCode {
     DISK_OUT_OF_SPACE(HttpStatus.OK, "MEMBER-ERR-413", "Disk out of space"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON-ERR-500", "Internal server error"),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE-ERR-404", "file not founded"),
-    FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER-ERR-404", "folder not founded");
+    FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER-ERR-404", "folder not founded"),
+    DUPLICATED_NAME(HttpStatus.BAD_REQUEST, "RESOURCE-ERR-404", "same name folder or file exists");
 
     private final HttpStatus status;
     private final String errorCode;
