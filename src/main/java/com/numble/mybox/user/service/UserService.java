@@ -18,6 +18,9 @@ public class UserService {
     private final FolderService folderService;
 
     public User signUp(User user) {
+        // 중복 이메일 검증
+        userRepository.findByEmail(user.getEmail())
+                .ifPresent(u-> {throw new CustomException(ErrorCode.DUPLICATED_LOGIN_ID);});
         User savedUser = userRepository.saveAndFlush(user);
         // 최상위 폴더 추가
         folderService.addFolder(new Folder(String.valueOf(savedUser.getId()), savedUser), null, user.getId());
