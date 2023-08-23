@@ -66,4 +66,6 @@ jobs:
           password: ${{ secrets.NCP_SERVER_PASSWORD }}
           port: ${{ secrets.NCP_SERVER_PORT }}
           script: |
+            cd ./source/build/libs/
             bash nohup java -jar -Dspring.profiles.active=prod mybox-0.0.1-SNAPSHOT.jar 1> log.txt 2>&1 &
+
